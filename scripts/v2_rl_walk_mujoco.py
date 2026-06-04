@@ -1,3 +1,13 @@
+import logging
+import datetime
+
+# Configure logging to save to a file named 'duck_io_errors.log'
+logging.basicConfig(
+    filename='duck_io_errors.log',
+    level=logging.ERROR,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+
 import time
 import pickle
 
@@ -172,17 +182,49 @@ class RLWalk:
         return obs
 
     def start(self):
+        """
+        Modified Start Routine: Replaces self.hwi.turn_on() with a manual staggered
+        activation to prevent power brownouts and fix the Rust Panic.
+        """
         kps = [self.pid[0]] * 14
         kds = [self.pid[2]] * 14
+        kps[5:9] = [8, 8, 8, 8] # Lower head KPs
 
-        # lower head kps
-        kps[5:9] = [8, 8, 8, 8]
-
+        print("Sequential Soft-Start: Setting Gains...")
         self.hwi.set_kps(kps)
         self.hwi.set_kds(kds)
-        self.hwi.turn_on()
+        time.sleep(0.2)
 
-        time.sleep(2)
+        # To avoid the Rust 'TryFromIntError', we MUST provide ALL 14 joints
+        # to set_position_all. We'll start with all joints at 0 and 'wake up' limbs.
+        all_joints = list(self.hwi.joints.keys())
+        current_command = {name: 0.0 for name in all_joints}
+        
+        # Define limbs for staggered activation
+        groups = [
+            ["right_hip_yaw", "right_hip_roll", "right_hip_pitch", "right_knee", "right_ankle"],
+            ["left_hip_yaw", "left_hip_roll", "left_hip_pitch", "left_knee", "left_ankle"],
+            ["neck_pitch", "head_pitch", "head_yaw", "head_roll"]
+        ]
+
+        print("Sequential Soft-Start: Moving limbs batch-by-batch...")
+        for group in groups:
+            for name in group:
+                if name in self.hwi.init_pos:
+                    current_command[name] = self.hwi.init_pos[name]
+            
+            # Send the FULL 14-joint dictionary to prevent Rust Panic
+            try:
+                self.hwi.set_position_all(current_command)
+                print(f"  Stabilized limb group: {group}")
+                time.sleep(0.4) # Pause to allow power rail to stabilize
+            except Exception as e:
+                print(f"  Warning during sequential move: {e}")
+
+        # Final move to ensure alignment
+        self.hwi.set_position_all(self.hwi.init_pos)
+        time.sleep(0.5)
+        print("Startup sequence complete.")
 
     def get_phase_frequency_factor(self, x_velocity):
 
@@ -314,7 +356,12 @@ class RLWalk:
                     self.motor_targets, list(self.hwi.joints.keys())
                 )
 
-                self.hwi.set_position_all(action_dict)
+                try:
+                    self.hwi.set_position_all(action_dict)
+                except OSError as e:
+                    logging.error(f"IO Error during Motor Command: {e}")
+                # This helps you see if it's a 'Timeout' or 'Device not found'
+                    print(f"Bus Error (Cmd): {e}")
 
                 i += 1
 
@@ -348,7 +395,6 @@ if __name__ == "__main__":
     parser.add_argument("--onnx_model_path", type=str, required=True)
     parser.add_argument(
         "--duck_config_path",
-        type=str,
         required=False,
         default=f"{HOME_DIR}/duck_config.json",
     )
@@ -366,14 +412,12 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--save_obs",
-        type=str,
         required=False,
         default=False,
         help="save the run's observations",
     )
     parser.add_argument(
         "--replay_obs",
-        type=str,
         required=False,
         default=None,
         help="replay the observations from a previous run (can be from the robot or from mujoco)",
