@@ -9,8 +9,8 @@ def run_audio_test():
     # Based on your output:
     # Index 0 is the Mic (USB PnP Sound Device)
     # Index 1 is the Speaker (MAX98357A)
-    MIC_INDEX = 0
-    SPEAKER_INDEX = 1
+    MIC_INDEX = 1
+    SPEAKER_INDEX = 0
 
     print(f"[*] Starting test...")
     print(f"[*] Recording for {DURATION} seconds... Speak into the USB Mic!")

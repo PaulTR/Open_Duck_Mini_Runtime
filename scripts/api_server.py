@@ -8,30 +8,18 @@ import time
 app = Flask(__name__)
 CORS(app)
 
-print("Initializing Duck robot...")
-duck_config = DuckConfig()
-hwi = HWI(duck_config=duck_config)
+config = DuckConfig()
+hwi = HWI(config)
 motor_ids = [30, 31, 32, 33]
-try:
-    hwi.io.set_kps(motor_ids, [hwi.low_torque_kps[0]] * len(motor_ids))
-except AttributeError:
-    # If low_torque_kps doesn't exist on older APIs
-    pass
-print("Hardware connected successfully!")
 
-# Setup Lights (GPIO 23 is Physical Pin 16, GPIO 24 is Physical Pin 18)
+MIC_INDEX = 1
+SPEAKER_INDEX = 0
+
 led1 = LED(23)
 led2 = LED(24)
-
-# Setup Antennas (SG90 Servos on D12/Pin32 and D13/Pin33)
+projector = LED(25)
 servo_left = AngularServo(12, min_angle=-90, max_angle=90)
 servo_right = AngularServo(13, min_angle=-90, max_angle=90)
-
-antenna_angles = {
-    'back': -90,
-    'center': 0,
-    'forward': 90
-}
 
 def set_lights(on):
     if on:
@@ -41,84 +29,125 @@ def set_lights(on):
         led1.off()
         led2.off()
 
-def set_antennas(antennas):
-    if antennas:
-        servo_left.angle = antenna_angles.get(antennas.get('left', 'center'), 0)
-        servo_right.angle = antenna_angles.get(antennas.get('right', 'center'), 0)
+def set_projector(on):
+    if on:
+        projector.on()
+    else:
+        projector.off()
+
+def get_antenna_angle(pos_str):
+    if pos_str == 'back': return -90
+    if pos_str == 'forward': return 90
+    return 0
+
+def set_antennas(positions):
+    servo_left.angle = get_antenna_angle(positions.get('left', 'center'))
+    servo_right.angle = get_antenna_angle(positions.get('right', 'center'))
+
+def bezier_interpolate(t, type_str):
+    if type_str == 'linear':
+        return t
+    if type_str in ['bezier', 'bezier_viscous', 'bezier_clamped']:
+        return t * t * (3.0 - 2.0 * t)
+    return t
 
 @app.route('/read', methods=['GET'])
-def read_position():
+def read_pos():
     try:
-        position_list = hwi.io.read_present_position(motor_ids)
-        positions = {}
-        for i, mid in enumerate(motor_ids):
-            positions[str(mid)] = position_list[i]
-        return jsonify(positions)
+        positions = hwi.io.read_present_position(motor_ids)
+        res = {str(mid): pos for mid, pos in zip(motor_ids, positions)}
+        return jsonify(res)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 @app.route('/play', methods=['POST'])
-def play_animation():
+def play_macro():
     data = request.json
-    if not data or 'keyframes' not in data:
-        return jsonify({"error": "No keyframes provided"}), 400
+    keyframes = data.get('keyframes', [])
+    global_sound = data.get('globalSound', '')
     
-    keyframes = data['keyframes']
-    
-    try:
+    if global_sound:
         try:
-            initial_list = hwi.io.read_present_position(motor_ids)
-            current_positions = {str(motor_ids[i]): initial_list[i] for i in range(len(motor_ids))}
-        except Exception:
-            current_positions = {}
+            import sounddevice as sd
+            import soundfile as sf
+            import numpy as np
+            import os
             
-        for frame in keyframes:
-            set_lights(frame.get('lightsOn', False))
-            set_antennas(frame.get('antennas', {}))
-            
-            motors = frame.get('motors', {})
-            ids = [int(k) for k in motors.keys()]
-            end_positions = list(motors.values())
-            
-            start_positions = [current_positions.get(str(mid), end_positions[j]) for j, mid in enumerate(ids)]
-            
-            dur = frame.get('durationMs', 500) / 1000.0
-            interp = frame.get('interpolation', 'linear')
-            
-            steps = max(1, int(dur * 50))
-            sleep_time = dur / steps
-            
-            for step in range(1, steps + 1):
-                t = step / float(steps)
-                if interp == 'bezier':
-                    f = t * t * (3.0 - 2.0 * t)
-                elif interp == 'bezier_viscous':
-                    f = 1.0 - (1.0 - t)**3
-                elif interp == 'bezier_clamped':
-                    f = t**3
-                else:
-                    f = t
-                    
-                interp_positions = [start_positions[j] + (end_positions[j] - start_positions[j]) * f for j in range(len(ids))]
-                if ids and interp_positions:
-                    hwi.io.write_goal_position(ids, interp_positions)
+            sound_path = f"assets/{global_sound}"
+            if os.path.exists(sound_path):
+                audio_data, fs = sf.read(sound_path, dtype='float32')
+                if len(audio_data.shape) == 1:
+                    audio_data = audio_data.reshape(-1, 1)
+                    audio_data = np.tile(audio_data, (1, 2))
                 
-                time.sleep(sleep_time)
-                
-            if ids and end_positions:
-                hwi.io.write_goal_position(ids, end_positions)
-                
-            for j, mid in enumerate(ids):
-                current_positions[str(mid)] = end_positions[j]
+                audio_data = audio_data * 2.0
+                sd.play(audio_data, fs, device=SPEAKER_INDEX)
+            else:
+                print(f"Sound file not found: {sound_path}")
+        except Exception as e:
+            print(f"Failed to play sound: {e}")
             
-        # Turn off lights after sequence
-        set_lights(False)
-        set_antennas({'left': 'center', 'right': 'center'})
+    try:
+        start_positions = hwi.io.read_present_position(motor_ids)
+        current_positions = {str(mid): pos for mid, pos in zip(motor_ids, start_positions)}
+    except:
+        current_positions = {str(mid): 0 for mid in motor_ids}
+        
+    try:
+        hwi.io.enable_torque(motor_ids)
+    except:
+        pass
+    
+    for frame in keyframes:
+        set_lights(frame.get('lightsOn', False))
+        set_projector(frame.get('projectorOn', False))
+        set_antennas(frame.get('antennas', {}))
+        
+        dur_sec = frame.get('durationMs', 1000) / 1000.0
+        steps = max(1, int(dur_sec * 30)) # 30Hz update rate
+        interp = frame.get('interpolation', 'linear')
+        target_motors = frame.get('motors', {})
+        
+        start_frame_pos = current_positions.copy()
+        print(f"Playing frame {frame.get('id', 'unknown')} over {dur_sec}s, {steps} steps")
+        
+        start_time = time.time()
+        for step in range(1, steps + 1):
+            t = step / float(steps)
+            eased_t = bezier_interpolate(t, interp)
+            
+            step_targets = []
+            for mid in motor_ids:
+                start_val = start_frame_pos.get(str(mid), start_frame_pos.get(mid, 0))
+                end_val = target_motors.get(str(mid), target_motors.get(mid, start_val))
+                val = start_val + (end_val - start_val) * eased_t
+                step_targets.append(float(val))
+                current_positions[str(mid)] = val
+            
+            try:
+                hwi.io.write_goal_position(motor_ids, step_targets)
+            except Exception as e:
+                print(f"HW error on step {step}: {e}")
+            
+            # Strict timing to prevent jitter and stalls
+            target_time = start_time + step * (dur_sec / steps)
+            now = time.time()
+            if target_time > now:
+                time.sleep(target_time - now)
+
+        pause_sec = frame.get('pauseMs', 0) / 1000.0
+        if pause_sec > 0:
+            time.sleep(pause_sec)
+
+    set_lights(False)
+    set_projector(False)
+    set_antennas({'left': 'center', 'right': 'center'})
+    try:
         hwi.io.disable_torque(motor_ids)
-        return jsonify({"success": True})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    except:
+        pass
+    
+    return jsonify({"success": True})
 
 if __name__ == '__main__':
-    # Run the server on all interfaces, port 5000
     app.run(host='0.0.0.0', port=5000)
