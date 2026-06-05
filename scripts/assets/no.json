@@ -1,0 +1,113 @@
+{
+  "keyframes": [
+    {
+      "id": "mpzl9fajorirrt6v3y",
+      "durationMs": 1000,
+      "pauseMs": 0,
+      "motors": {
+        "30": 0.4448544284868361,
+        "31": 0.6458059116998549,
+        "32": -0.1687378866674205,
+        "33": -0.17180584824319167
+      },
+      "lightsOn": true,
+      "projectorOn": false,
+      "interpolation": "bezier",
+      "antennas": {
+        "left": "center",
+        "right": "center"
+      }
+    },
+    {
+      "id": "mpzla8179fub40l12n",
+      "durationMs": 300,
+      "pauseMs": 200,
+      "motors": {
+        "30": 0.6289321230331129,
+        "31": 0.6473398924877407,
+        "32": -0.5460971604872884,
+        "33": -0.17180584824319167
+      },
+      "lightsOn": true,
+      "projectorOn": false,
+      "interpolation": "bezier",
+      "antennas": {
+        "left": "center",
+        "right": "center"
+      }
+    },
+    {
+      "id": "mpzlactzwon427cmsmo",
+      "durationMs": 300,
+      "pauseMs": 200,
+      "motors": {
+        "30": 0.6335340653967698,
+        "31": 0.6442719309119691,
+        "32": 0.1365242901218222,
+        "33": -0.17180584824319167
+      },
+      "lightsOn": true,
+      "projectorOn": false,
+      "interpolation": "bezier",
+      "antennas": {
+        "left": "center",
+        "right": "center"
+      }
+    },
+    {
+      "id": "mpzlah74b174nhugei8",
+      "durationMs": 300,
+      "pauseMs": 200,
+      "motors": {
+        "30": 0.6335340653967698,
+        "31": 0.6442719309119691,
+        "32": -0.6028544496390569,
+        "33": -0.17180584824319167
+      },
+      "lightsOn": true,
+      "projectorOn": false,
+      "interpolation": "bezier",
+      "antennas": {
+        "left": "center",
+        "right": "center"
+      }
+    },
+    {
+      "id": "mpzlak49jfachvbfdt",
+      "durationMs": 300,
+      "pauseMs": 200,
+      "motors": {
+        "30": 0.6611457195787112,
+        "31": 0.6412039693361979,
+        "32": 0.16566992509164935,
+        "33": -0.1810097329705056
+      },
+      "lightsOn": true,
+      "projectorOn": false,
+      "interpolation": "bezier",
+      "antennas": {
+        "left": "center",
+        "right": "center"
+      }
+    },
+    {
+      "id": "mpzlb0x4o3p5mlh3oih",
+      "durationMs": 300,
+      "pauseMs": 200,
+      "motors": {
+        "30": 0.4433204476989503,
+        "31": 0.3988350048502669,
+        "32": -0.16566992509164935,
+        "33": -0.15033011721279266
+      },
+      "lightsOn": false,
+      "projectorOn": false,
+      "interpolation": "bezier",
+      "antennas": {
+        "left": "center",
+        "right": "center"
+      }
+    }
+  ],
+  "globalSound": "no.wav"
+}

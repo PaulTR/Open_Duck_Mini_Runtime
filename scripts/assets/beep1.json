@@ -1,0 +1,185 @@
+{
+  "keyframes": [
+    {
+      "id": "mpzph7m3gpw97yqw2c",
+      "durationMs": 300,
+      "pauseMs": 200,
+      "motors": {
+        "30": 0.5905826033359718,
+        "31": 0.3988350048502669,
+        "32": -0.18867963690993372,
+        "33": -0.15186409800067846
+      },
+      "lightsOn": false,
+      "projectorOn": false,
+      "interpolation": "bezier",
+      "antennas": {
+        "left": "center",
+        "right": "center"
+      }
+    },
+    {
+      "id": "mpzphbl53le30ncttc",
+      "durationMs": 300,
+      "pauseMs": 200,
+      "motors": {
+        "30": -0.10277671278833811,
+        "31": -0.04295146206079803,
+        "32": -0.19021361769781953,
+        "33": -0.15339807878856426
+      },
+      "lightsOn": false,
+      "projectorOn": false,
+      "interpolation": "bezier",
+      "antennas": {
+        "left": "center",
+        "right": "center"
+      }
+    },
+    {
+      "id": "mpzpheb3udgyll5a8wl",
+      "durationMs": 300,
+      "pauseMs": 200,
+      "motors": {
+        "30": -0.10277671278833811,
+        "31": -0.04601942363656919,
+        "32": -0.18867963690993372,
+        "33": 0.20862138715244738
+      },
+      "lightsOn": false,
+      "projectorOn": false,
+      "interpolation": "bezier",
+      "antennas": {
+        "left": "center",
+        "right": "center"
+      }
+    },
+    {
+      "id": "mpzphgnyacsc54fa82k",
+      "durationMs": 300,
+      "pauseMs": 200,
+      "motors": {
+        "30": -0.10277671278833811,
+        "31": -0.04141748127291223,
+        "32": -0.18867963690993372,
+        "33": -0.5982525072753999
+      },
+      "lightsOn": false,
+      "projectorOn": false,
+      "interpolation": "bezier",
+      "antennas": {
+        "left": "center",
+        "right": "center"
+      }
+    },
+    {
+      "id": "mpzphjxu5v275ockb4p",
+      "durationMs": 300,
+      "pauseMs": 200,
+      "motors": {
+        "30": -0.10431069357622347,
+        "31": -0.04141748127291223,
+        "32": -0.18867963690993372,
+        "33": 0.27765052260730094
+      },
+      "lightsOn": false,
+      "projectorOn": false,
+      "interpolation": "bezier",
+      "antennas": {
+        "left": "center",
+        "right": "center"
+      }
+    },
+    {
+      "id": "mpzphmvw1guoorcqy38",
+      "durationMs": 300,
+      "pauseMs": 200,
+      "motors": {
+        "30": -0.8176117599430466,
+        "31": -1.1688933603688585,
+        "32": -0.3021942152134711,
+        "33": -0.17333982903107747
+      },
+      "lightsOn": false,
+      "projectorOn": false,
+      "interpolation": "bezier",
+      "antennas": {
+        "left": "center",
+        "right": "center"
+      }
+    },
+    {
+      "id": "mpzphqewtkao3mr49qf",
+      "durationMs": 300,
+      "pauseMs": 200,
+      "motors": {
+        "30": 0.9081166264282992,
+        "31": 1.1934370529750291,
+        "32": -0.15646604036433542,
+        "33": -0.17333982903107747
+      },
+      "lightsOn": false,
+      "projectorOn": false,
+      "interpolation": "bezier",
+      "antennas": {
+        "left": "center",
+        "right": "center"
+      }
+    },
+    {
+      "id": "mpzpht1kc8qkjufmt7q",
+      "durationMs": 300,
+      "pauseMs": 200,
+      "motors": {
+        "30": 0.9127185687919566,
+        "31": 1.0584467436410927,
+        "32": -0.632000084608884,
+        "33": 0.15493205957644962
+      },
+      "lightsOn": false,
+      "projectorOn": false,
+      "interpolation": "bezier",
+      "antennas": {
+        "left": "center",
+        "right": "center"
+      }
+    },
+    {
+      "id": "mpzphvtoaz7pg6vipz",
+      "durationMs": 300,
+      "pauseMs": 200,
+      "motors": {
+        "30": 0.7731263170943632,
+        "31": 0.774660297882249,
+        "32": 0.1687378866674205,
+        "33": -0.7117670855789373
+      },
+      "lightsOn": false,
+      "projectorOn": false,
+      "interpolation": "bezier",
+      "antennas": {
+        "left": "center",
+        "right": "center"
+      }
+    },
+    {
+      "id": "mpzpi3bky6bpsz3i1j",
+      "durationMs": 300,
+      "pauseMs": 200,
+      "motors": {
+        "30": 0.874369049094815,
+        "31": 0.9418642037617833,
+        "32": -0.1487961364249073,
+        "33": -0.1472621556370215
+      },
+      "lightsOn": false,
+      "projectorOn": false,
+      "interpolation": "bezier",
+      "antennas": {
+        "left": "center",
+        "right": "center"
+      }
+    }
+  ],
+  "globalSound": ""
+}
